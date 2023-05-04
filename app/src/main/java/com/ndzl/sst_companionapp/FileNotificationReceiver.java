@@ -29,5 +29,8 @@ public class FileNotificationReceiver extends BroadcastReceiver  {
                 String secure_file_persist = extras.getString("secure_file_persist");
             }
         }
+        else if (intent != null && intent.getAction().equals("com.symbol.button.L2")){
+            Log.d("FileNotificationReceiver", "### PTT received");
+        }
     }
 }

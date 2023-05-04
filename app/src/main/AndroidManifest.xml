@@ -34,6 +34,8 @@
             <intent-filter >
                 <action android:name="com.ndzl.DW" />
                 <action android:name="com.zebra.configFile.action.notify" />
+                <action android:name="com.symbol.button.L2" />
+                <action android:name="com.symbol.button.R1" />
             </intent-filter>
         </receiver>
     </application>

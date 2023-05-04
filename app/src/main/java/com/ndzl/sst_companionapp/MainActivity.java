@@ -2,6 +2,7 @@ package com.ndzl.sst_companionapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -50,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         resultView = findViewById(R.id.result);
         resultView.setText("Companion App\n"+getAndroidAPI()+"\n"+getTargetSDK()+"\nisExternalStorageManager:"+ Environment.isExternalStorageManager());
+
+        //TESTING ANDROID ENTERPRISE ENROLLMENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+            resultView.setText(  resultView.getText()+"\nis in COPE mode: "+dpm.isOrganizationOwnedDeviceWithManagedProfile());
+        }
 
         //TESTING EXTERNAL STORAGE
         String extStoragePaths = getFoldersPath();
@@ -114,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
 
         filter.addAction("com.zebra.configFile.action.notify");
         filter.addAction("com.ndzl.DW");
+        filter.addAction("com.symbol.button.L2");
+        filter.addAction("com.symbol.button.R1");
         filter.addCategory("android.intent.category.DEFAULT");
 
         Intent regres = registerReceiver(new FileNotificationReceiver(), filter);
