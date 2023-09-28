@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -23,6 +24,7 @@ import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
     TextView resultView;
     Uri cpUri;
     private final String AUTHORITY = "content://com.zebra.securestoragemanager.securecontentprovider/data";
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +56,12 @@ public class MainActivity extends AppCompatActivity {
         //TESTING ANDROID ENTERPRISE ENROLLMENT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             DevicePolicyManager dpm = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-            resultView.setText(  resultView.getText()+"\nis in COPE mode: "+dpm.isOrganizationOwnedDeviceWithManagedProfile());
+            String isCope="\nis in COPE mode: "+dpm.isOrganizationOwnedDeviceWithManagedProfile();
+
+
+            String maxTimeOff="";//""\nMax time off: "+dpm.getManagedProfileMaximumTimeOff(null);
+
+            resultView.setText(  resultView.getText()+isCope+maxTimeOff);
         }
 
         //TESTING EXTERNAL STORAGE
@@ -81,6 +87,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        //replaces the default 'Back' button action
+        if(keyCode==KeyEvent.KEYCODE_BACK)
+        {
+
+
+        }
+        return true;
     }
 
     private String readUri(Uri uri) {
@@ -141,6 +159,9 @@ public class MainActivity extends AppCompatActivity {
         sb.append("\n\n\tgetExternalStorageDirectory()=");
         sb.append(" "+	Environment.getExternalStorageDirectory().getPath());
 
+        sb.append("\n\n\tgetDownloadsDir()=");
+        sb.append(" "+ Environment.DIRECTORY_DOWNLOADS);
+
         return sb.toString();
 
     }
@@ -193,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
         String downloadLines="";
         String enterpriseLines="";
         String androidDataAppLines="";
+        String androidAppExtStoreage="";
         String emulatedLines="";
         String docsLines="";
         BufferedReader br;
@@ -226,7 +248,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try{
-            br = new BufferedReader(new InputStreamReader(new FileInputStream("/storage/emulated/0/Download/nesd.txt"),"utf-8"));
+            //Runtime.getRuntime().exec("chmod 666 /storage/emulated/10/Download/moon.xml");
+            br = new BufferedReader(new InputStreamReader(new FileInputStream("/storage/emulated/10/Download/moon.xml"),"utf-8"));
             emulatedLines = ""+br.readLine().length();
             br.close();
         } catch (IOException e) {
@@ -253,6 +276,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try{
+            br = new BufferedReader(new InputStreamReader(new FileInputStream("/storage/emulated/10/Android/data/com.ndzl.sst_companionapp/files/app.xml"),"utf-8"));
+            androidAppExtStoreage = ""+br.readLine().length();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            androidAppExtStoreage= e.getMessage();
+        }
+        try{
             br = new BufferedReader(new InputStreamReader(new FileInputStream("/enterprise/usr/persist/enterprise.txt"),"utf-8"));
             enterpriseLines = ""+br.readLine().length();
             br.close();
@@ -267,9 +298,10 @@ public class MainActivity extends AppCompatActivity {
         sb.append("1st line len in /sdcard/sdc.txt:"+sdcardLines);
         sb.append("\n1st line len in /sdcard/personal/mars.txt:"+personalLines);
         sb.append("\n1st line len in /sdcard/Download/moon.xml:"+downloadLines);
-        sb.append("\n1st line len in /storage/emulated/0/Download/nesd.txt:"+emulatedLines);
+        sb.append("\n1st line len in /storage/emulated/10/Download/moon.xml:"+emulatedLines);
         sb.append("\n1st line len in /sdcard/Documents/doc.txt:"+docsLines);
-        sb.append("\n1st line len in /sdcard/Android/data/com.zebra.ssmdatapersist/app.xml:"+androidDataAppLines);
+        sb.append("\n1st line len in /sdcard/Android/data/com.zebra.ssmdatapersist/files/app.xml:"+androidDataAppLines);
+        sb.append("\n1st line len in /storage/emulated/10/Android/data/com.ndzl.sst_companionapp/files/app.xml:"+androidAppExtStoreage);
         sb.append("\n1st line len in /enterprise/usr/persist/enterprise.txt:"+enterpriseLines);
 
 
@@ -599,7 +631,8 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader bufferedReader = new BufferedReader(isr);
         StringBuilder sb = new StringBuilder();
         String line;
-        while ((line = bufferedReader.readLine()) != null) {
+        int maxLines=10;
+        while (maxLines-->0 && (line = bufferedReader.readLine()) != null) {
             sb.append(line);
         }
         Log.d(TAG, "readFileURI "+uriString+" <" + sb+">");
