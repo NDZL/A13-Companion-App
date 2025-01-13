@@ -2,6 +2,7 @@ package com.ndzl.sst_companionapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -308,6 +309,11 @@ public class MainActivity extends AppCompatActivity {
         resultView.setText(sb.toString());
     }
 
+    public void onClickSSMDataQueryDET(View view){
+
+        ssmQueryDataDET();
+    }
+
     public void onClickSSMDataQuery(View view){
 
         StringBuilder sb = new StringBuilder();
@@ -326,10 +332,66 @@ public class MainActivity extends AppCompatActivity {
 
         resultView.setText(sb.toString());
     }
+    void ssmQueryDataDET(){
+        //DET TEST
+        queryAllDataDET();
+    }
+
     String ssmQueryData(){
         //TO GET DATA SHARED BY OTHER APP
         return "hi!\nI can see "+ssm_notpersisted_countRecords()+" not-persisted recs in your SSM\nAnd " + ssm_ispersisted_countRecords()+" persisted recs";
     }
+
+
+    public void queryAllDataDET() {
+        Uri cpUriQuery = Uri.parse(AUTHORITY + "/[" + getPackageName() + "]");
+        String selection = COLUMN_TARGET_APP_PACKAGE + " = '" + getPackageName() + "'";  ;
+
+        Cursor cursor = null;
+
+        try {
+            cursor = getContentResolver().query(cpUriQuery, null, selection, null, null);
+
+        } catch (Exception e) {
+            Log.d(TAG, "Error: " + e.getMessage());
+        }
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                StringBuilder strBuild = new StringBuilder();
+                while (!cursor.isAfterLast()) {
+                    strBuild.append("\n" + "" +
+                            // "COLUMN_ORIG_APP_PACKAGE :" + "\n" + cursor.getString(cursor.getColumnIndex(COLUMN_ORIG_APP_PACKAGE)) + " \n " +
+                            //"COLUMN_TARGET_APP_PACKAGE :" + "\n"  + cursor.getString(cursor.getColumnIndex(COLUMN_TARGET_APP_PACKAGE)) + " \n " +
+                            "" + cursor.getString(cursor.getColumnIndex(COLUMN_DATA_NAME)) + " : " +
+                            "" + cursor.getString(cursor.getColumnIndex(COLUMN_DATA_VALUE)) + " \n "+
+                            //"COLUMN_DATA_TYPE: " + "\n" + cursor.getString(cursor.getColumnIndex(COLUMN_DATA_TYPE)) + " \n " +
+                            //"COLUMN_DATA_INPUT_FORM: " + "\n" + cursor.getString(cursor.getColumnIndex(COLUMN_DATA_INPUT_FORM)) + " \n " +
+                            //"COLUMN_DATA_OUTPUT_FORM: " + "\n" + cursor.getString(cursor.getColumnIndex(COLUMN_DATA_OUTPUT_FORM)) + " \n " +
+                            //"COLUMN_DATA_PERSIST_REQUIRED: " + "\n" + cursor.getString(cursor.getColumnIndex(COLUMN_DATA_PERSIST_REQUIRED)) + " \n " +
+                            //"COLUMN_MULTI_INSTANCE_REQUIRED: " + "\n" + cursor.getString(cursor.getColumnIndex(COLUMN_MULTI_INSTANCE_REQUIRED)) +
+                            ""
+                    );
+
+                    String targetData = cursor.getString(cursor.getColumnIndex(COLUMN_TARGET_APP_PACKAGE));
+                    //Log.d(TAG, "Target Data Received: " + targetData);
+                    //strBuild.append("\n ----------------------").append("\n");
+                    cursor.moveToNext();
+                }
+                Log.d(TAG, "Query data: " + strBuild);
+                resultView.setText(strBuild);
+            } else {
+                resultView.setText("No Records Found");
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Query data error: " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+    }
+
 
     int ssm_notpersisted_countRecords() {
         Uri cpUriQuery = Uri.parse(AUTHORITY + "/[" + getPackageName() + "]");

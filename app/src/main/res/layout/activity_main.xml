@@ -110,6 +110,16 @@
                 android:backgroundTint="#FF9900"
                 android:onClick="onClickSSMDataQuery"
                 android:text="SSM DATA QUERY" />
+            <Button
+                android:id="@+id/btn_SSMDETDataQuery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="0.5"
+                android:backgroundTint="#FF9900"
+                android:onClick="onClickSSMDataQueryDET"
+                android:text="SSM *DET* DATA QUERY" />
         </LinearLayout>
 
         <TextView
